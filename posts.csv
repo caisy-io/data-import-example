@@ -1,4 +1,4 @@
-id,title,thumbnail,text
-c0f99460-68f0-47a7-b26d-88230987a885,Just an example,https://images.pexels.com/photos/1591056/pexels-photo-1591056.jpeg,"<h1>HTML Ipsum Presents</h1><p><strong>Pellentesque habitant morbi tristique</strong> senectus et netus.</p><pre><code>npm install react</code></pre>"
-af7c1fe6-d669-414e-b066-e9733f0de7a8,Another example,https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg,"<h1>Another HTML Ipsum Presents</h1><p><strong>Lorem ipsum dolor sit</strong> amet, consectetur adipiscing elit.</p>"
-96fdc209-0551-4d67-b9ad-0e9067a44bc4,Yet another example,https://images.pexels.com/photos/414612/pexels-photo-414612.jpeg,"<h1>Yet Another HTML Ipsum Presents</h1><p><strong>Sed lectus</strong> justo, viverra in sodales eget, congue ac tellus.</p>"
+id,title,text
+c0f99460-68f0-47a7-b26d-88230987a885,Just an example,"<h1>HTML Ipsum Presents</h1><p><strong>Pellentesque habitant morbi tristique</strong> senectus et netus.</p><pre><code>npm install react</code></pre>"
+af7c1fe6-d669-414e-b066-e9733f0de7a8,Another example,"<h1>Another HTML Ipsum Presents</h1><p><strong>Lorem ipsum dolor sit</strong> amet, consectetur adipiscing elit.</p>"
+96fdc209-0551-4d67-b9ad-0e9067a44bc4,Yet another example,"<h1>Yet Another HTML Ipsum Presents</h1><p><strong>Sed lectus</strong> justo, viverra in sodales eget, congue ac tellus.</p>"

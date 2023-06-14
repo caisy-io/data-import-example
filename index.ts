@@ -4,13 +4,9 @@ import {
   BlueprintField,
   DocumentFieldInput,
   DocumentWithFieldsInput,
-  IUploadResult,
   initSdk,
-  uploadFile,
 } from "@caisy/sdk";
 import { parseHTMLToJSON } from "@caisy/rich-text-html-parser";
-import https from "https";
-import path from "path";
 
 // Load environment variables
 dotenv.config();
@@ -18,7 +14,7 @@ dotenv.config();
 const token = process.env.CAISY_PRIVATE_ACCES_TOKEN!;
 const projectId = process.env.CAISY_PROJECT_ID!;
 const blueprintName = "BlogPost";
-const fieldNamesToImport = ["title", "text", "thumbnail"];
+const fieldNamesToImport = ["title", "text"];
 
 // Checks if token and projectId are present
 function validateEnvVariables() {
@@ -74,44 +70,15 @@ function validateBlueprintAndFields(blueprint?: Awaited<ReturnType<typeof getBlu
   validateEnvVariables();
   const importDataParsed = await readAndParseData();
 
-  const sdk = initSdk({ token });
+  const sdk = initSdk({ token, endpoint: "https://cloud.staging.caisy.io/caisy/graphql" });
   const blueprint = await getBlueprintDetails(sdk);
   const fields = validateBlueprintAndFields(blueprint);
-
-  // Map importDataParsed to upload thumbnails and generate the documentsWithThumbnails list
-  const documentsWithThumbnails = await Promise.all(
-    importDataParsed.map(async (rowData) => {
-      // If thumbnail does not exist, return the row data as is
-      if (!rowData.thumbnail) {
-        return rowData;
-      }
-
-      // Download the image, upload it to caisy and receive an id
-      const uploadedImage = await downloadImageAndUploadToCaisy({
-        thumbnail: rowData.thumbnail,
-        token,
-        projectId,
-      });
-
-      // If image upload failed, set thumbnail as null and return the row data
-      if (!uploadedImage) {
-        rowData.thumbnail = null;
-        return rowData;
-      }
-
-      // If image upload was successful, replace thumbnail with the document id
-      return {
-        ...rowData,
-        thumbnail: [uploadedImage.documentId],
-      };
-    })
-  );
 
   // Generate input for PutManyDocuments method
   const documentsInput = {
     input: {
       projectId,
-      documentInputs: documentsWithThumbnails.map((rowData) => {
+      documentInputs: importDataParsed.map((rowData) => {
         return {
           documentId: rowData.id,
           title: rowData.title,
@@ -149,55 +116,3 @@ function validateBlueprintAndFields(blueprint?: Awaited<ReturnType<typeof getBlu
   }
 })();
 
-function downloadImageAndUploadToCaisy({
-  thumbnail,
-  token,
-  projectId,
-}: {
-  thumbnail: string;
-  token: string;
-  projectId: string;
-}): Promise<IUploadResult | null> | null {
-  if (!thumbnail) {
-    return null;
-  }
-
-  // read the filename from the url in to the meta data
-  let meta: any = {};
-  try {
-    const url = new URL(thumbnail);
-    const pathname = url.pathname;
-    meta.filename = path.basename(pathname);
-  } catch (err) {
-    console.error(` err parse image url`, err);
-    return null;
-  }
-
-  return new Promise((resolve) => {
-    try {
-      https.get(thumbnail, (res) => {
-        const data: any[] = [];
-
-        res.on("data", (chunk) => data.push(chunk));
-
-        res
-          .on("end", () => {
-            uploadFile({
-              file: Buffer.concat(data),
-              meta,
-              projectId,
-              token,
-            }).then((res) => {
-              resolve(res);
-            });
-          })
-          .on("error", (err) => {
-            throw err;
-          });
-      });
-    } catch (err) {
-      console.log(`downloading ${thumbnail} failed: `, err);
-      resolve(null);
-    }
-  });
-}
